@@ -154,13 +154,13 @@ var updater = {
         $("#inbox").append(node);
         node.slideDown();
 
-        console.log("Message " + message.body);
+        console.log("Message [" + message.body + "]");
 
         if(message.body.startsWith("\\song")){
 
-            var song = message.body.substring(5);
-            console.log("Playing song " + song);
-            playSong($('#GoodLife').attr('href'));
+            var song = message.body.substring(6);
+            console.log("Message contains request to play song [" + song + "]");
+            playSong($('#' + song).attr('href'));
         }
 
     }
