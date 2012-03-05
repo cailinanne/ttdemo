@@ -1,5 +1,5 @@
 <!DOCTYPE html >
-<html >
+<html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Tornado Chat Demo</title>
@@ -12,37 +12,45 @@
     <b>{{ current_user["name"] }}</b> -
     <a href="/auth/logout">{{ _("Sign out") }}</a>
 </div>
-<div id="body">
+<div id="main">
 
 
     <div id="music">
-        <ul class="menu">
-            <li><a class="play" href="{{ static_url('music/OneRepublic_WakingUp_GoodLife.mp3') }}">GoodLife</a></li>
-            <li><a class="play" href="{{ static_url('music/TheFlamingLips_Yoshimi_DoYouRealize.mp3') }}">DoYouRealize</a></li>
-        </ul>
+        <h2>Pick A Song By Clicking The Link...</h2>
         <section class="song">
         </section>
+
+        <ul class="menu">
+            <li><a id="GoodLife" class="play" href="{{ static_url('music/OneRepublic_WakingUp_GoodLife.mp3') }}">GoodLife</a>
+            </li>
+            <li><a id="DoYouRealize" class="play"
+                   href="{{ static_url('music/TheFlamingLips_Yoshimi_DoYouRealize.mp3') }}">DoYouRealize</a></li>
+        </ul>
+
     </div>
 
-
-    <div id="inbox">
-        {% for message in messages %}
-        {% module Template("message.html", message=message) %}
-        {% end %}
-    </div>
-    <div id="input">
-        <form action="/a/message/new" method="post" id="messageform">
-            <table>
-                <tr>
-                    <td><input name="body" id="message" style="width:500px"/></td>
-                    <td style="padding-left:5px">
-                        <input type="submit" value="{{ _('Post') }}"/>
-                        <input type="hidden" name="next" value="{{ request.path }}"/>
-                        {% module xsrf_form_html() %}
-                    </td>
-                </tr>
-            </table>
-        </form>
+    <div id="chat">
+        <h2>Or... Type "\song NAME" in Chat</h2>
+        <h3>(Chat About Anything Else Too)</h3>
+        <div id="inbox">
+            {% for message in messages %}
+            {% module Template("message.html", message=message) %}
+            {% end %}
+        </div>
+        <div id="input">
+            <form action="/a/message/new" method="post" id="messageform">
+                <table>
+                    <tr>
+                        <td><input name="body" id="message" style="width:500px"/></td>
+                        <td style="padding-left:5px">
+                            <input type="submit" value="{{ _('Post') }}"/>
+                            <input type="hidden" name="next" value="{{ request.path }}"/>
+                            {% module xsrf_form_html() %}
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
     </div>
 </div>
 

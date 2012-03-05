@@ -28,19 +28,23 @@ $(document).ready(function() {
     });
     $("#message").select();
 
-    var audioSection = $('section.song');
-    $('a.play').click(function() {
 
-        var audio = $('<audio>').attr('controls','controls').attr('autoplay','autoplay');
-
+    $('a.play').click(function(e) {
+        e.preventDefault();
         var url = $(this).attr('href');
-        $('<source>').attr('src', url).attr("type","audio/mpeg").appendTo(audio);
-        audioSection.html(audio);
+        playSong(url);
         return false;
     });
 
     updater.poll();
 });
+
+function playSong(url){
+    console.log("Playing song " + url);
+    var audio = $('<audio>').attr('controls','controls').attr('autoplay','autoplay');
+    $('<source>').attr('src', url).attr("type","audio/mpeg").appendTo(audio);
+    $('section.song').html(audio);
+}
 
 function newMessage(form) {
     var message = form.formToDict();
@@ -71,6 +75,12 @@ jQuery.postJSON = function(url, args, callback) {
         console.log("ERROR:", response)
     }});
 };
+
+if (typeof String.prototype.startsWith != 'function') {
+    String.prototype.startsWith = function (str){
+        return this.indexOf(str) == 0;
+    };
+}
 
 jQuery.fn.formToDict = function() {
     var fields = this.serializeArray();
@@ -143,5 +153,15 @@ var updater = {
         node.hide();
         $("#inbox").append(node);
         node.slideDown();
+
+        console.log("Message " + message.body);
+
+        if(message.body.startsWith("\\song")){
+
+            var song = message.body.substring(5);
+            console.log("Playing song " + song);
+            playSong($('#GoodLife').attr('href'));
+        }
+
     }
 };

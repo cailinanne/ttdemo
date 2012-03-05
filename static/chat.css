@@ -36,17 +36,19 @@ td {
   padding: 0;
 }
 
-#body {
+#main {
+    width: 980px;
+    margin: 0 auto;
 }
 
 #music{
-    margin-bottom: 300px;
+    float: left;
+    width: 49%;
 }
 
-section.song{
-    height: 100px;
-    width: 300px;
-    background-color: #DDD;
+#chat{
+    float: right;
+    width: 49%;
 }
 
 #input {
