@@ -57,6 +57,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class MainHandler(BaseHandler):
     @tornado.web.authenticated
+
+    # Deliver the initial HTML payload
+    # Note that this HTML payload includes the N most recent
+    # messages (where N = MessageMixin.cache_size)
     def get(self):
         self.render("index.html", messages=MessageMixin.cache)
 
@@ -68,6 +72,13 @@ class MessageMixin(object):
 
     def wait_for_messages(self, callback, cursor=None):
         cls = MessageMixin
+        # The cursor is just the UUID of the latest message that the client has
+        # received since the initial HTML payload.  On first request cursor = None
+        #
+        # If the client is already behind we immediately trigger the new_messages
+        # callback. This should only really happen if a new message comes in during
+        # the time between the request of the initial HTML payload and the first
+        # AJAX triggered request to /a/messages/update
         if cursor:
             index = 0
             for i in xrange(len(cls.cache)):
@@ -77,6 +88,10 @@ class MessageMixin(object):
             if recent:
                 callback(recent)
                 return
+
+        # Add the requesting client to the list of waiters (or "observers")
+        # Specifically, what we're adding is a function pointer (is that the right word?)
+        # to the on_new_messages method
         cls.waiters.add(callback)
 
     def cancel_wait(self, callback):
@@ -86,19 +101,31 @@ class MessageMixin(object):
     def new_messages(self, messages):
         cls = MessageMixin
         logging.info("Sending new message to %r listeners", len(cls.waiters))
+
         for callback in cls.waiters:
             try:
+                # Call on_new_messages, which will finally complete the request
                 callback(messages)
             except:
                 logging.error("Error in waiter callback", exc_info=True)
+
+        # Empty the list of observers.  Any clients that are still interested
+        # will re-register their interest by immediately executing a new
+        # POST /a/messages/updates as soon as they get a response from the server
+        # See Long Polling: http://en.wikipedia.org/wiki/Push_technology
         cls.waiters = set()
+
         cls.cache.extend(messages)
+
+        # If the cache of messages has grown bigger then cache_size, trim it
+        # and keep only the most recent cache_size messages
         if len(cls.cache) > self.cache_size:
             cls.cache = cls.cache[-self.cache_size:]
 
 
 class MessageNewHandler(BaseHandler, MessageMixin):
     @tornado.web.authenticated
+    # Note that this method is synchronous
     def post(self):
         message = {
             "id": str(uuid.uuid4()),
@@ -118,6 +145,7 @@ class MessageUpdatesHandler(BaseHandler, MessageMixin):
     @tornado.web.asynchronous
     def post(self):
         cursor = self.get_argument("cursor", None)
+        logging.info("Requesting update starting from cursor %s", cursor)
         self.wait_for_messages(self.on_new_messages,
                                cursor=cursor)
 
