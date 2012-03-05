@@ -37,9 +37,16 @@ td {
 }
 
 #body {
-  position: absolute;
-  bottom: 400px;
-  left: 400px;
+}
+
+#music{
+    margin-bottom: 300px;
+}
+
+section.song{
+    height: 100px;
+    width: 300px;
+    background-color: #DDD;
 }
 
 #input {

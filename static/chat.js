@@ -27,6 +27,18 @@ $(document).ready(function() {
         }
     });
     $("#message").select();
+
+    var audioSection = $('section.song');
+    $('a.play').click(function() {
+
+        var audio = $('<audio>').attr('controls','controls').attr('autoplay','autoplay');
+
+        var url = $(this).attr('href');
+        $('<source>').attr('src', url).attr("type","audio/mpeg").appendTo(audio);
+        audioSection.html(audio);
+        return false;
+    });
+
     updater.poll();
 });
 
