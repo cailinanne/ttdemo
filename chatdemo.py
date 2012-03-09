@@ -22,6 +22,7 @@ import tornado.options
 import tornado.web
 import os.path
 import uuid
+import pymongo
 
 from tornado.options import define, options
 
@@ -30,11 +31,16 @@ define("port", default=8888, help="run on the given port", type=int)
 
 class Application(tornado.web.Application):
     def __init__(self):
+
+        logging.info("INITIALIZING")
+        conn = pymongo.Connection()
+        db = conn.simpletest
+
         handlers = [
             (r"/", MainHandler),
             (r"/auth/login", AuthLoginHandler),
             (r"/auth/logout", AuthLogoutHandler),
-            (r"/a/message/new", MessageNewHandler),
+            (r"/a/message/new", MessageNewHandler, dict(db=db)),
             (r"/a/message/updates", MessageUpdatesHandler),
         ]
         settings = dict(
@@ -124,6 +130,10 @@ class MessageMixin(object):
 
 
 class MessageNewHandler(BaseHandler, MessageMixin):
+    def initialize(self, db):
+        self.db = db
+
+
     @tornado.web.authenticated
     # Note that this method is synchronous
     def post(self):
@@ -138,6 +148,7 @@ class MessageNewHandler(BaseHandler, MessageMixin):
         else:
             self.write(message)
         self.new_messages([message])
+        self.db.chats.insert(message)
 
 
 class MessageUpdatesHandler(BaseHandler, MessageMixin):
