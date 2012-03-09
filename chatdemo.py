@@ -23,6 +23,7 @@ import tornado.web
 import os.path
 import uuid
 import pymongo
+import re
 
 from tornado.options import define, options
 
@@ -149,6 +150,23 @@ class MessageNewHandler(BaseHandler, MessageMixin):
             self.write(message)
         self.new_messages([message])
         self.db.chats.insert(message)
+        self.save_play(message)
+
+
+    def save_play(self, message):
+        pattern = re.compile(r"\\song (.*)")
+        match = pattern.match(message["body"])
+
+        if match != None:
+            play = {
+                "id" : message["id"],
+                "user" : message["from"],
+                "song" : match.groups(1)
+            }
+
+            self.db.plays.insert(play)
+
+            logging.info("[INFO] Inserted a play")
 
 
 class MessageUpdatesHandler(BaseHandler, MessageMixin):
