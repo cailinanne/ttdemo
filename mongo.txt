@@ -1,0 +1,6 @@
+db.plays.group(
+{
+ key: {'song': true},
+ initial: {sum: 0},
+ reduce: function(doc, prev) { prev.sum += 1}
+});
