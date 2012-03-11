@@ -88,13 +88,16 @@ class MessageNewHandler(BaseHandler, MessageMixin):
             "from": self.current_user["first_name"],
             "body": self.get_argument("body"),
         }
-        message["html"] = self.render_string("message.html", message=message)
+
+        #message["html"] = self.render_string("message.html", message=message)
+
         if self.get_argument("next", None):
             self.redirect(self.get_argument("next"))
         else:
             self.write(message)
+
         self.new_messages([message])
-        self.db.chats.insert(message)
+        self.save_message(message)
         self.save_play(message)
 
 

@@ -149,12 +149,15 @@ var updater = {
     showMessage: function(message) {
         var existing = $("#m" + message.id);
         if (existing.length > 0) return;
-        var node = $(message.html);
+
+        var html = '<div class="message" id=m'+message.id+'><b>'+message.from+':</b>'+message.body+'</div>';
+
+        var node = $(html);
         node.hide();
         $("#inbox").append(node);
         node.slideDown();
 
-        console.log("Message [" + message.body + "]");
+        console.log("Processing message [" + message.body + "]");
 
         if(message.body.startsWith("\\song")){
 

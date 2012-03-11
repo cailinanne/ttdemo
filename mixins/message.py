@@ -73,3 +73,6 @@ class MessageMixin(object):
             self.db.plays.insert(play)
 
             logging.info("[INFO] Inserted a play")
+
+    def save_message(self, message):
+        self.db.messages.insert(message)
