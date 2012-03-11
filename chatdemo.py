@@ -35,10 +35,10 @@ class Application(tornado.web.Application):
 
         logging.info("INITIALIZING")
         conn = pymongo.Connection()
-        db = conn.simpletest
+        db = conn.demo
 
         handlers = [
-            (r"/", MainHandler),
+            (r"/", MainHandler, dict(db=db)),
             (r"/auth/login", AuthLoginHandler),
             (r"/auth/logout", AuthLogoutHandler),
             (r"/a/message/new", MessageNewHandler, dict(db=db)),
@@ -63,15 +63,20 @@ class BaseHandler(tornado.web.RequestHandler):
 
 
 class MainHandler(BaseHandler):
-    @tornado.web.authenticated
+    def initialize(self, db):
+        self.db = db
 
+
+    @tornado.web.authenticated
     # Deliver the initial HTML payload
     # Note that this HTML payload includes the N most recent
     # messages (where N = MessageMixin.cache_size)
     def get(self):
+        logging.info(self.current_user)
+        if self.db.users.find_one({"first_name" : self.current_user["first_name"]}) == None:
+            self.db.users.insert(self.current_user)
+
         self.render("index.html", messages=MessageMixin.cache)
-
-
 
 
 
