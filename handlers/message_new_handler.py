@@ -17,6 +17,7 @@ class MessageNewHandler(BaseHandler, MessageMixin):
             "id": str(uuid.uuid4()),
             "from": self.current_user["first_name"],
             "body": self.get_argument("body"),
+            "room": self.get_argument("room")
             }
 
         #message["html"] = self.render_string("message.html", message=message)

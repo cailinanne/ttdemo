@@ -3,7 +3,7 @@
 {% module Template("head.html") %}
 <body>
 {% module Template("nav.html") %}
-<div id="main">
+<div id="main" class="room" data-id="{{ room['name'] }}">
 
 
     <div id="music">
@@ -44,6 +44,7 @@
                         <td style="padding-left:5px">
                             <input type="submit" value="{{ _('Post') }}"/>
                             <input type="hidden" name="next" value="{{ request.path }}"/>
+                            <input type="hidden" name="room" value="{{ room['name'] }}"/>
                             {% module xsrf_form_html() %}
                         </td>
                     </tr>
