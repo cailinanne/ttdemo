@@ -21,12 +21,14 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 import os.path
-import uuid
 import pymongo
-from mixins.message import MessageMixin
 from mixins.room import RoomMixin
-from handlers.message_new_handler import MessageNewHandler
+from mixins.message import MessageMixin
 from handlers.base_handler import BaseHandler
+from handlers.message_new_handler import MessageNewHandler
+from handlers.message_updates_handler import MessageUpdatesHandler
+from handlers.room_handler import RoomHandler
+
 
 from tornado.options import define, options
 
@@ -64,53 +66,12 @@ class MainHandler(BaseHandler, RoomMixin):
     def initialize(self, db):
         self.db = db
 
-
     @tornado.web.authenticated
     # The lobby
     def get(self):
         logging.info(self.current_user)
         self.leave_current_room()
         self.render("index.html")
-
-class RoomHandler(BaseHandler, RoomMixin):
-    def initialize(self, db):
-        self.db = db
-
-    @tornado.web.authenticated
-    # Deliver the initial HTML payload
-    # Note that this HTML payload includes the N most recent
-    # messages (where N = MessageMixin.cache_size)
-    def get(self, room_name):
-        logging.info(self.current_user)
-        self.enter_room(room_name)
-        room = self.db.rooms.find_one({"name" : room_name})
-        self.render("room.html", messages=MessageMixin.caches[room_name].cache, room=room)
-
-
-class MessageUpdatesHandler(BaseHandler, MessageMixin):
-    def initialize(self, db):
-        self.db = db
-
-    @tornado.web.authenticated
-    @tornado.web.asynchronous
-    def post(self):
-        cursor = self.get_argument("cursor", None)
-        room = self.get_argument("room", None)
-        logging.info("Requesting update for room %s starting from cursor %s", room, cursor)
-        self.wait_for_messages(self.on_new_messages,
-                               cursor=cursor,
-                               room=room)
-
-    def on_new_messages(self, messages):
-        # Closed client connection
-        if self.request.connection.stream.closed():
-            return
-        self.finish(dict(messages=messages))
-
-    def on_connection_close(self):
-        user = self.db.users.find_one({"first_name" : self.current_user["first_name"]})
-        self.cancel_wait(self.on_new_messages, user["room"])
-
 
 class AuthLoginHandler(BaseHandler, tornado.auth.GoogleMixin):
     def initialize(self, db):
