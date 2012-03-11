@@ -29,6 +29,13 @@
             <li><a id="DoYouRealize" class="play" href="{{ static_url('music/TheFlamingLips_Yoshimi_DoYouRealize.mp3') }}">DoYouRealize</a></li>
         </ul>
 
+        <h2>Users In This Room...</h2>
+        <div id="floor">
+            {% for user in room['users'] %}
+            {% module Template("user.html", user=user) %}
+            {% end %}
+        </div>
+
     </div>
 
     <div id="chat">

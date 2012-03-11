@@ -75,7 +75,8 @@ class MainHandler(BaseHandler, RoomMixin):
     def get(self):
         logging.info(self.current_user)
         self.enter_room()
-        self.render("index.html", messages=MessageMixin.cache)
+        room = self.db.rooms.find_one({"name" : "demoroom"})
+        self.render("index.html", messages=MessageMixin.cache, room=room)
 
 
 
