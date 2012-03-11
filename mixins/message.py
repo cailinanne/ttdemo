@@ -6,7 +6,7 @@ class MessageMixin(object):
     cache = []
     cache_size = 200
 
-    def wait_for_messages(self, callback, cursor=None):
+    def wait_for_messages(self, callback, cursor=None, room=None):
         cls = MessageMixin
         # The cursor is just the UUID of the latest message that the client has
         # received since the initial HTML payload.  On first request cursor = None

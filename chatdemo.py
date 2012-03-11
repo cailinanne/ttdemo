@@ -66,9 +66,7 @@ class MainHandler(BaseHandler, RoomMixin):
 
 
     @tornado.web.authenticated
-    # Deliver the initial HTML payload
-    # Note that this HTML payload includes the N most recent
-    # messages (where N = MessageMixin.cache_size)
+    # The lobby
     def get(self):
         logging.info(self.current_user)
         self.leave_current_room()
@@ -94,9 +92,11 @@ class MessageUpdatesHandler(BaseHandler, MessageMixin):
     @tornado.web.asynchronous
     def post(self):
         cursor = self.get_argument("cursor", None)
-        logging.info("Requesting update starting from cursor %s", cursor)
+        room = self.get_argument("room", None)
+        logging.info("Requesting update for room %s starting from cursor %s", room, cursor)
         self.wait_for_messages(self.on_new_messages,
-                               cursor=cursor)
+                               cursor=cursor,
+                               room=room)
 
     def on_new_messages(self, messages):
         # Closed client connection

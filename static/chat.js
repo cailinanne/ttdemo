@@ -111,7 +111,9 @@ var updater = {
     cursor: null,
 
     poll: function() {
-        var args = {"_xsrf": getCookie("_xsrf")};
+        var room = $(".room").attr("data-id");
+        console.log("Requesting update for room " + room);
+        var args = {"_xsrf": getCookie("_xsrf"), "room" : room};
         if (updater.cursor) args.cursor = updater.cursor;
         $.ajax({url: "/a/message/updates", type: "POST", dataType: "text",
                 data: $.param(args), success: updater.onSuccess,
