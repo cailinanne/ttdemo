@@ -1,6 +1,9 @@
 <!DOCTYPE html >
 <html>
-{% module Template("head.html") %}
+<head>
+    {% module Template("head.html") %}
+    <script src="{{ static_url('chat.js') }}" type="text/javascript"></script>
+</head>
 <body>
 {% module Template("nav.html") %}
 <div id="main" class="room" data-id="{{ room['name'] }}">

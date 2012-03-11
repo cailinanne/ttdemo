@@ -46,7 +46,7 @@ class Application(tornado.web.Application):
             (r"/auth/login", AuthLoginHandler, dict(db=db)),
             (r"/auth/logout", AuthLogoutHandler, dict(db=db)),
             (r"/a/message/new", MessageNewHandler, dict(db=db)),
-            (r"/a/message/updates", MessageUpdatesHandler),
+            (r"/a/message/updates", MessageUpdatesHandler, dict(db=db)),
         ]
         settings = dict(
             cookie_secret="43oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
@@ -84,10 +84,13 @@ class RoomHandler(BaseHandler, RoomMixin):
         logging.info(self.current_user)
         self.enter_room(room_name)
         room = self.db.rooms.find_one({"name" : room_name})
-        self.render("room.html", messages=MessageMixin.cache, room=room)
+        self.render("room.html", messages=MessageMixin.caches[room_name].cache, room=room)
 
 
 class MessageUpdatesHandler(BaseHandler, MessageMixin):
+    def initialize(self, db):
+        self.db = db
+
     @tornado.web.authenticated
     @tornado.web.asynchronous
     def post(self):
@@ -105,7 +108,8 @@ class MessageUpdatesHandler(BaseHandler, MessageMixin):
         self.finish(dict(messages=messages))
 
     def on_connection_close(self):
-        self.cancel_wait(self.on_new_messages)
+        user = self.db.users.find_one({"first_name" : self.current_user["first_name"]})
+        self.cancel_wait(self.on_new_messages, user["room"])
 
 
 class AuthLoginHandler(BaseHandler, tornado.auth.GoogleMixin):
@@ -138,7 +142,7 @@ class AuthLogoutHandler(BaseHandler,RoomMixin):
     def get(self):
         self.leave_current_room()
         self.clear_cookie("user")
-        self.write("You are now logged out")
+        self.write("You are now logged out of chatdemo")
 
 
 def main():

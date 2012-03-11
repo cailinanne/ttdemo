@@ -27,6 +27,6 @@ class MessageNewHandler(BaseHandler, MessageMixin):
         else:
             self.write(message)
 
-        self.new_messages([message])
+        self.new_messages([message], self.get_argument("room"))
         self.save_message(message)
         self.save_play(message)
