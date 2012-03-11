@@ -40,6 +40,7 @@ class Application(tornado.web.Application):
 
         handlers = [
             (r"/", MainHandler, dict(db=db)),
+            (r"/room", RoomHandler, dict(db=db)),
             (r"/auth/login", AuthLoginHandler),
             (r"/auth/logout", AuthLogoutHandler),
             (r"/a/message/new", MessageNewHandler, dict(db=db)),
@@ -74,9 +75,21 @@ class MainHandler(BaseHandler, RoomMixin):
     # messages (where N = MessageMixin.cache_size)
     def get(self):
         logging.info(self.current_user)
+        self.render("index.html")
+
+class RoomHandler(BaseHandler, RoomMixin):
+    def initialize(self, db):
+        self.db = db
+
+    @tornado.web.authenticated
+    # Deliver the initial HTML payload
+    # Note that this HTML payload includes the N most recent
+    # messages (where N = MessageMixin.cache_size)
+    def get(self):
+        logging.info(self.current_user)
         self.enter_room()
         room = self.db.rooms.find_one({"name" : "demoroom"})
-        self.render("index.html", messages=MessageMixin.cache, room=room)
+        self.render("room.html", messages=MessageMixin.cache, room=room)
 
 
 
