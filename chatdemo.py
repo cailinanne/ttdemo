@@ -24,6 +24,7 @@ import os.path
 import uuid
 import pymongo
 from mixins.message import MessageMixin
+from mixins.room import RoomMixin
 
 from tornado.options import define, options
 
@@ -62,7 +63,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return tornado.escape.json_decode(user_json)
 
 
-class MainHandler(BaseHandler):
+class MainHandler(BaseHandler, RoomMixin):
     def initialize(self, db):
         self.db = db
 
@@ -76,19 +77,6 @@ class MainHandler(BaseHandler):
         self.enter_room()
         self.render("index.html", messages=MessageMixin.cache)
 
-
-    def enter_room(self):
-
-        if self.db.users.find_one({"first_name" : self.current_user["first_name"]}) == None:
-            self.db.users.insert(self.current_user)
-
-        # TODO: Let users enter different rooms
-        room = self.db.rooms.find_one({"name" : "demoroom"})
-
-        if not self.current_user["first_name"] in room["users"]:
-            self.db.rooms.update( { "name" : "demoroom" }, { "$push": { "users" : self.current_user["first_name"] } } );
-
-        self.db.users.update({"first_name" : self.current_user["first_name"]},  {"$set": {"room": room["name"]}})
 
 
 class MessageNewHandler(BaseHandler, MessageMixin):
