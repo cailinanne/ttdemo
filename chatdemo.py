@@ -25,6 +25,8 @@ import uuid
 import pymongo
 from mixins.message import MessageMixin
 from mixins.room import RoomMixin
+from handlers.message_new_handler import MessageNewHandler
+from handlers.base_handler import BaseHandler
 
 from tornado.options import define, options
 
@@ -41,8 +43,8 @@ class Application(tornado.web.Application):
         handlers = [
             (r"/", MainHandler, dict(db=db)),
             (r"/room/([a-z]+)", RoomHandler, dict(db=db)),
-            (r"/auth/login", AuthLoginHandler),
-            (r"/auth/logout", AuthLogoutHandler),
+            (r"/auth/login", AuthLoginHandler, dict(db=db)),
+            (r"/auth/logout", AuthLogoutHandler, dict(db=db)),
             (r"/a/message/new", MessageNewHandler, dict(db=db)),
             (r"/a/message/updates", MessageUpdatesHandler),
         ]
@@ -57,12 +59,6 @@ class Application(tornado.web.Application):
         tornado.web.Application.__init__(self, handlers, **settings)
 
 
-class BaseHandler(tornado.web.RequestHandler):
-    def get_current_user(self):
-        user_json = self.get_secure_cookie("user")
-        if not user_json: return None
-        return tornado.escape.json_decode(user_json)
-
 
 class MainHandler(BaseHandler, RoomMixin):
     def initialize(self, db):
@@ -75,6 +71,7 @@ class MainHandler(BaseHandler, RoomMixin):
     # messages (where N = MessageMixin.cache_size)
     def get(self):
         logging.info(self.current_user)
+        self.leave_current_room()
         self.render("index.html")
 
 class RoomHandler(BaseHandler, RoomMixin):
@@ -87,38 +84,9 @@ class RoomHandler(BaseHandler, RoomMixin):
     # messages (where N = MessageMixin.cache_size)
     def get(self, room_name):
         logging.info(self.current_user)
-        room = self.db.rooms.find_one({"name" : room_name})
-
         self.enter_room(room_name)
-
+        room = self.db.rooms.find_one({"name" : room_name})
         self.render("room.html", messages=MessageMixin.cache, room=room)
-
-
-
-class MessageNewHandler(BaseHandler, MessageMixin):
-    def initialize(self, db):
-        self.db = db
-
-
-    @tornado.web.authenticated
-    # Note that this method is synchronous
-    def post(self):
-        message = {
-            "id": str(uuid.uuid4()),
-            "from": self.current_user["first_name"],
-            "body": self.get_argument("body"),
-        }
-
-        #message["html"] = self.render_string("message.html", message=message)
-
-        if self.get_argument("next", None):
-            self.redirect(self.get_argument("next"))
-        else:
-            self.write(message)
-
-        self.new_messages([message])
-        self.save_message(message)
-        self.save_play(message)
 
 
 class MessageUpdatesHandler(BaseHandler, MessageMixin):
@@ -141,6 +109,9 @@ class MessageUpdatesHandler(BaseHandler, MessageMixin):
 
 
 class AuthLoginHandler(BaseHandler, tornado.auth.GoogleMixin):
+    def initialize(self, db):
+        self.db = db
+
     @tornado.web.asynchronous
     def get(self):
         if self.get_argument("openid.mode", None):
@@ -151,12 +122,21 @@ class AuthLoginHandler(BaseHandler, tornado.auth.GoogleMixin):
     def _on_auth(self, user):
         if not user:
             raise tornado.web.HTTPError(500, "Google auth failed")
+
         self.set_secure_cookie("user", tornado.escape.json_encode(user))
+
+        if self.db.users.find_one({"first_name" : user["first_name"]}) == None:
+            self.db.users.insert(user)
+
         self.redirect("/")
 
 
-class AuthLogoutHandler(BaseHandler):
+class AuthLogoutHandler(BaseHandler,RoomMixin):
+    def initialize(self, db):
+        self.db = db
+
     def get(self):
+        self.leave_current_room()
         self.clear_cookie("user")
         self.write("You are now logged out")
 
