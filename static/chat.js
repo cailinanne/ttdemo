@@ -71,7 +71,7 @@ function getCookie(name) {
 
 jQuery.postJSON = function(url, args, callback) {
     args._xsrf = getCookie("_xsrf");
-    $.ajax({url: url, data: $.param(args), dataType: "text", type: "POST",
+    $.ajax({url: url, data: $.param(args), dataType: "text", type: "POST", crossDomain: true,
             success: function(response) {
         if (callback) callback(eval("(" + response + ")"));
     }, error: function(response) {
@@ -125,7 +125,7 @@ var updater = {
 
         if (updater.cursor) args.cursor = updater.cursor;
 
-        $.ajax({url: url, type: "POST", dataType: "text",
+        $.ajax({url: url, type: "POST", dataType: "text", crossDomain: true,
                 data: $.param(args), success: updater.onSuccess,
                 error: updater.onError});
     },
