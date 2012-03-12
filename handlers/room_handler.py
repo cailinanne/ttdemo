@@ -17,4 +17,6 @@ class RoomHandler(BaseHandler, RoomMixin):
         logging.info(self.current_user)
         self.enter_room(room_name)
         room = self.db.rooms.find_one({"name" : room_name})
-        self.render("room.html", messages=MessageMixin.caches[room_name].cache, room=room)
+        chat_server = self.get_chat_server(room_name)
+        self.render("room.html", messages=MessageMixin.caches[room_name].cache, room=room, chat_server=chat_server)
+

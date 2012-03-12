@@ -1,5 +1,6 @@
 import logging
 import re
+from settings import CHAT_SERVER_1, CHAT_SERVER_2
 
 class RoomMixin(object):
 
@@ -19,3 +20,9 @@ class RoomMixin(object):
         if user != None and user.has_key("room"):
             self.db.rooms.update( { "name" : user["room"] }, { "$pull": { "users" : self.current_user["first_name"] } } );
             self.db.users.update({"first_name" : self.current_user["first_name"]},  {"$set": {"room": None }})
+
+    def get_chat_server(self, room_name):
+        if room_name == "demoroom":
+            return CHAT_SERVER_1
+        else:
+            return CHAT_SERVER_2

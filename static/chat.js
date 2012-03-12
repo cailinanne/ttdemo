@@ -49,8 +49,11 @@ function playSong(url){
 function newMessage(form) {
     var message = form.formToDict();
     var disabled = form.find("input[type=submit]");
+    var host = $(".room").attr("data-host");
+    var url = "http://" + host + "/a/message/new";
+
     disabled.disable();
-    $.postJSON("/a/message/new", message, function(response) {
+    $.postJSON(url, message, function(response) {
         updater.showMessage(response);
         if (message.id) {
             form.parent().remove();
@@ -112,10 +115,17 @@ var updater = {
 
     poll: function() {
         var room = $(".room").attr("data-id");
-        console.log("Requesting update for room " + room);
+        var host = $(".room").attr("data-host");
+        var url = "http://" + host + "/a/message/updates";
+
         var args = {"_xsrf": getCookie("_xsrf"), "room" : room};
+
+
+        console.log("Requesting update for room " + room + " from host " + host + " and url " + url);
+
         if (updater.cursor) args.cursor = updater.cursor;
-        $.ajax({url: "/a/message/updates", type: "POST", dataType: "text",
+
+        $.ajax({url: url, type: "POST", dataType: "text",
                 data: $.param(args), success: updater.onSuccess,
                 error: updater.onError});
     },

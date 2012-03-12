@@ -1,3 +1,6 @@
 MONGO_HOST = 'localhost'
 MONGO_PORT = 27017
+COOKIE_DOMAIN = None
+CHAT_SERVER_1 = 'tt1.johnandcailin.com:8888'
+CHAT_SERVER_2 = 'tt2.johnandcailin.com:8888'
 
