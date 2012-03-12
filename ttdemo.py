@@ -28,7 +28,7 @@ from handlers.base_handler import BaseHandler
 from handlers.message_new_handler import MessageNewHandler
 from handlers.message_updates_handler import MessageUpdatesHandler
 from handlers.room_handler import RoomHandler
-from settings import MONGO_HOST, MONGO_PORT
+from settings import MONGO_HOST, MONGO_PORT, COOKIE_DOMAIN
 
 
 from tornado.options import define, options
@@ -89,7 +89,7 @@ class AuthLoginHandler(BaseHandler, tornado.auth.GoogleMixin):
         if not user:
             raise tornado.web.HTTPError(500, "Google auth failed")
 
-        self.set_secure_cookie("user", tornado.escape.json_encode(user))
+        self.set_cookie("user", self.create_signed_value("user", tornado.escape.json_encode(user)), domain=COOKIE_DOMAIN)
 
         if self.db.users.find_one({"first_name" : user["first_name"]}) == None:
             self.db.users.insert(user)
