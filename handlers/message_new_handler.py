@@ -30,3 +30,4 @@ class MessageNewHandler(BaseHandler, MessageMixin):
         self.new_messages([message], self.get_argument("room"))
         self.save_message(message)
         self.save_play(message)
+        self.set_header("Access-Control-Allow-Origin","*")

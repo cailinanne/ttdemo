@@ -12,6 +12,7 @@ class MessageUpdatesHandler(BaseHandler, MessageMixin):
     @tornado.web.authenticated
     @tornado.web.asynchronous
     def post(self):
+        self.set_header("Access-Control-Allow-Origin","*")
         cursor = self.get_argument("cursor", None)
         room = self.get_argument("room", None)
         logging.info("Requesting update for room %s starting from cursor %s", room, cursor)
