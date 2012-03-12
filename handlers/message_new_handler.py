@@ -13,6 +13,8 @@ class MessageNewHandler(BaseHandler, MessageMixin):
     @tornado.web.authenticated
     # Note that this method is synchronous
     def post(self):
+        self.set_header("Access-Control-Allow-Origin","*")
+
         message = {
             "id": str(uuid.uuid4()),
             "from": self.current_user["first_name"],
@@ -30,4 +32,8 @@ class MessageNewHandler(BaseHandler, MessageMixin):
         self.new_messages([message], self.get_argument("room"))
         self.save_message(message)
         self.save_play(message)
-        self.set_header("Access-Control-Allow-Origin","*")
+
+
+    def options(self):
+        self.set_header('Access-Control-Allow-Origin', '*')
+        self.set_header('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS')

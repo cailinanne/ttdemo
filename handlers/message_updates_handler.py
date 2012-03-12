@@ -20,6 +20,10 @@ class MessageUpdatesHandler(BaseHandler, MessageMixin):
             cursor=cursor,
             room=room)
 
+    def options(self):
+        self.set_header('Access-Control-Allow-Origin', '*')
+        self.set_header('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS')
+
     def on_new_messages(self, messages):
         # Closed client connection
         if self.request.connection.stream.closed():
