@@ -4,17 +4,18 @@ import tornado.escape
 import tornado.web
 from handlers.base_handler import BaseHandler
 from mixins.message import MessageMixin
+from settings import ORIGIN_SERVER
 
 class MessageNewHandler(BaseHandler, MessageMixin):
     def initialize(self, db):
         self.db = db
+        self.set_header('Access-Control-Allow-Origin', ORIGIN_SERVER)
+        self.set_header('Access-Control-Allow-Credentials', 'true')
 
 
     @tornado.web.authenticated
     # Note that this method is synchronous
     def post(self):
-        self.set_header("Access-Control-Allow-Origin","*")
-
         message = {
             "id": str(uuid.uuid4()),
             "from": self.current_user["first_name"],
@@ -35,5 +36,5 @@ class MessageNewHandler(BaseHandler, MessageMixin):
 
 
     def options(self):
-        self.set_header('Access-Control-Allow-Origin', '*')
         self.set_header('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS')
+        self.set_header('Access-Control-Allow-Headers', 'X-Requested-With')

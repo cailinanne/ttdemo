@@ -50,7 +50,7 @@ function newMessage(form) {
     var message = form.formToDict();
     var disabled = form.find("input[type=submit]");
     var host = $(".room").attr("data-host");
-    var url = "http://" + host + "/a/message/new";
+    var url = host + "/a/message/new";
 
     disabled.disable();
     $.postJSON(url, message, function(response) {
@@ -71,7 +71,11 @@ function getCookie(name) {
 
 jQuery.postJSON = function(url, args, callback) {
     args._xsrf = getCookie("_xsrf");
-    $.ajax({url: url, data: $.param(args), dataType: "text", type: "POST", crossDomain: true,
+    $.ajax({url: url, data: $.param(args), dataType: "text", type: "POST",
+            crossDomain: true,
+            xhrFields: {
+                withCredentials: true
+            },
             success: function(response) {
         if (callback) callback(eval("(" + response + ")"));
     }, error: function(response) {
@@ -116,7 +120,7 @@ var updater = {
     poll: function() {
         var room = $(".room").attr("data-id");
         var host = $(".room").attr("data-host");
-        var url = "http://" + host + "/a/message/updates";
+        var url = host + "/a/message/updates";
 
         var args = {"_xsrf": getCookie("_xsrf"), "room" : room};
 
@@ -125,7 +129,11 @@ var updater = {
 
         if (updater.cursor) args.cursor = updater.cursor;
 
-        $.ajax({url: url, type: "POST", dataType: "text", crossDomain: true,
+        $.ajax({url: url, type: "POST", dataType: "text",
+                crossDomain: true,
+                xhrFields: {
+                    withCredentials: true
+                },
                 data: $.param(args), success: updater.onSuccess,
                 error: updater.onError});
     },

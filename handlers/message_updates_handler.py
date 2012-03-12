@@ -3,16 +3,19 @@ import tornado.escape
 import tornado.web
 from handlers.base_handler import BaseHandler
 from mixins.message import MessageMixin
+from settings import ORIGIN_SERVER
 
 
 class MessageUpdatesHandler(BaseHandler, MessageMixin):
     def initialize(self, db):
+        logging.info("[INFO] Initializing MessageUpdatesHandler")
         self.db = db
+        self.set_header('Access-Control-Allow-Origin', ORIGIN_SERVER)
+        self.set_header('Access-Control-Allow-Credentials', 'true')
 
     @tornado.web.authenticated
     @tornado.web.asynchronous
     def post(self):
-        self.set_header("Access-Control-Allow-Origin","*")
         cursor = self.get_argument("cursor", None)
         room = self.get_argument("room", None)
         logging.info("Requesting update for room %s starting from cursor %s", room, cursor)
@@ -21,8 +24,8 @@ class MessageUpdatesHandler(BaseHandler, MessageMixin):
             room=room)
 
     def options(self):
-        self.set_header('Access-Control-Allow-Origin', '*')
-        self.set_header('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS')
+        self.set_header('Access-Control-Allow-Methods', 'GET, PUT, POST, OPTIONS')
+        self.set_header('Access-Control-Allow-Headers', 'X-Requested-With')
 
     def on_new_messages(self, messages):
         # Closed client connection
