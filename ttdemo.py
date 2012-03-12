@@ -28,6 +28,7 @@ from handlers.base_handler import BaseHandler
 from handlers.message_new_handler import MessageNewHandler
 from handlers.message_updates_handler import MessageUpdatesHandler
 from handlers.room_handler import RoomHandler
+from settings import MONGO_HOST, MONGO_PORT
 
 
 from tornado.options import define, options
@@ -39,7 +40,7 @@ class Application(tornado.web.Application):
     def __init__(self):
 
         logging.info("INITIALIZING")
-        conn = pymongo.Connection()
+        conn = pymongo.Connection(host=MONGO_HOST,port=MONGO_PORT)
         db = conn.demo
 
         handlers = [
