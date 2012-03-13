@@ -23,7 +23,6 @@ import tornado.web
 import os.path
 import pymongo
 from mixins.room import RoomMixin
-from mixins.message import MessageMixin
 from handlers.base_handler import BaseHandler
 from handlers.message_new_handler import MessageNewHandler
 from handlers.message_updates_handler import MessageUpdatesHandler

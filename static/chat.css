@@ -15,7 +15,7 @@
  */
 
 body {
-  background: white;
+  background: #000;
   margin: 10px;
 }
 
@@ -26,14 +26,41 @@ input {
   color: black;
 }
 
-table {
-  border-collapse: collapse;
-  border: 0;
+section{
+    background-color: #FFF;
+    margin-bottom: 20px;
+    padding: 15px;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    border-radius: 15px;
 }
 
-td {
-  border: 0;
-  padding: 0;
+h2{
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+
+nav{
+    width: 980px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #000;
+    color: #FFF;
+}
+
+nav a,
+nav a:visited{
+    color: #FFF;
+}
+
+nav ul{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li{
+    display: inline-block;
 }
 
 #main {
@@ -41,15 +68,20 @@ td {
     margin: 0 auto;
 }
 
-#music{
+#music,
+#users{
     float: left;
-    width: 49%;
+    width: 60%;
 }
 
-#chat{
+aside{
+
     float: right;
-    width: 49%;
+    width: 35%;
+    clear:right;
+
 }
+
 
 #input {
   margin-top: 0.5em;

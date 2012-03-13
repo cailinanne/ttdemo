@@ -8,12 +8,10 @@
 {% module Template("nav.html") %}
 <div id="main" class="room" data-id="{{ room['name'] }}" data-host="{{ chat_server }}">
 
+    <aside>
 
-    <div id="music">
-        <h2>Pick A Song From The Queue And Play Just For You By Clicking The Link...</h2>
-        <section class="song">
-        </section>
-
+    <section id="queue">
+        <h2>Queue - Click Preview a Track</h2>
         <ul class="menu">
             <li><a id="LetterToElise" class="play" href="{{ static_url('music/Cure_Wish_LetterToElise.mp3') }}">LetterToElise</a></li>
             <li><a id="WorldLeaderPretend" class="play" href="{{ static_url('music/REM_Green_WorldLeaderPretend.mp3') }}">WorldLeaderPretend</a></li>
@@ -21,19 +19,14 @@
             <li><a id="GoodLife" class="play" href="{{ static_url('music/OneRepublic_WakingUp_GoodLife.mp3') }}">GoodLife</a></li>
             <li><a id="DoYouRealize" class="play" href="{{ static_url('music/TheFlamingLips_Yoshimi_DoYouRealize.mp3') }}">DoYouRealize</a></li>
         </ul>
+    </section>
 
-        <h2>Users In This Room...</h2>
-        <div id="floor">
-            {% for user in room['users'] %}
-            {% module Template("user.html", user=user) %}
-            {% end %}
-        </div>
-
-    </div>
-
-    <div id="chat">
-        <h2>Or... Type "\song NAME" in Chat To Play A Song For All Your Friends</h2>
-        <h3>(Chat About Anything Else Too)</h3>
+    <section id="chat">
+        <h2>Chat</h2>
+        <ul>
+            <li>Enter anything you like to chat with other users</li>
+            <li>Type "\song NAME" to play a song for the room</li>
+        </ul>
         <div id="inbox">
             {% for message in messages %}
             {% module Template("message.html", message=message) %}
@@ -41,20 +34,32 @@
         </div>
         <div id="input">
             <form action="/a/message/new" method="post" id="messageform">
-                <table>
-                    <tr>
-                        <td><input name="body" type="text" id="message" style="width:500px"/></td>
-                        <td style="padding-left:5px">
-                            <input type="submit" value="{{ _('Post') }}"/>
-                            <input type="hidden" name="next" value="{{ request.path }}"/>
-                            <input type="hidden" name="room" value="{{ room['name'] }}"/>
-                            {% module xsrf_form_html() %}
-                        </td>
-                    </tr>
-                </table>
+                <input name="body" type="text" id="message" />
+                <input type="submit" value="{{ _('Post') }}"/>
+                <input type="hidden" name="next" value="{{ request.path }}"/>
+                <input type="hidden" name="room" value="{{ room['name'] }}"/>
+                {% module xsrf_form_html() %}
             </form>
         </div>
-    </div>
+    </section>
+
+    </aside>
+
+    <section id="music">
+        <h2>Now Playing - (Nothing)</h2>
+
+        <div class="song"></div>
+
+    </section>
+
+    <section id="users">
+        <h2>Users In This Room</h2>
+        <div id="floor">
+            {% for user in room['users'] %}
+            {% module Template("user.html", user=user) %}
+            {% end %}
+        </div>
+    </section>
 </div>
 
 </body>

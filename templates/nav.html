@@ -1,5 +1,6 @@
-<div id="nav">
-    <b>{{ current_user["name"] }}</b> -
-    <a href="/auth/logout">{{ _("Sign out") }}</a>
-    <a href="/">{{ _("Lobby") }}</a>
-</div>
+<nav>
+    <ul>
+        <li><b>{{ current_user["name"] }}</b> - <a href="/auth/logout">{{ _("Sign out") }}</a></li>
+        <li><a href="/">{{ _("Lobby") }}</a></li>
+    </ul>
+</nav>

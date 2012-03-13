@@ -43,7 +43,7 @@ function playSong(url){
     console.log("Playing song " + url);
     var audio = $('<audio>').attr('controls','controls').attr('autoplay','autoplay');
     $('<source>').attr('src', url).attr("type","audio/mpeg").appendTo(audio);
-    $('section.song').html(audio);
+    $('div.song').html(audio);
 }
 
 function newMessage(form) {
@@ -183,6 +183,7 @@ var updater = {
 
             var song = message.body.substring(6);
             console.log("Message contains request to play song [" + song + "]");
+            $('#music h2').html("Now Playing - " + song);
             playSong($('#' + song).attr('href'));
         }
 
