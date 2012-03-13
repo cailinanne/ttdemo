@@ -103,7 +103,7 @@ class AuthLogoutHandler(BaseHandler,RoomMixin):
     def get(self):
         self.leave_current_room()
         self.clear_cookie("user")
-        self.write("You are now logged out of chatdemo")
+        self.write("You are now logged out of ttdemo")
 
 
 def main():
