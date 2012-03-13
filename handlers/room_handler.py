@@ -16,14 +16,6 @@ class RoomHandler(BaseHandler, RoomMixin, MessageMixin):
     def get(self, room_name):
         self.enter_room(room_name)
 
-        message = {
-            "id": str(uuid.uuid4()),
-            "from": self.current_user["first_name"],
-            "body": "\enter",
-            "room": room_name
-        }
-        self.new_messages([message], room_name)
-
         room = self.db.rooms.find_one({"name" : room_name})
 
         # Goofy.  Can't figure out how to reverse the order of the most recent three without

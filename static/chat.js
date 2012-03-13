@@ -36,6 +36,11 @@ $(document).ready(function() {
         return false;
     });
 
+    // Send a message that user has entered the room.
+    // Must do this client side so that it's broadcast
+    // to the right chat server
+    newMessage($("#messageform"), "\\enter");
+
     updater.poll();
 });
 
@@ -46,15 +51,19 @@ function playSong(url){
     $('div.song').html(audio);
 }
 
-function newMessage(form) {
+function newMessage(form, body) {
     var message = form.formToDict();
+    if(body){
+        message["body"] = body;
+    }
+
     var disabled = form.find("input[type=submit]");
     var host = $(".room").attr("data-host");
     var url = host + "/a/message/new";
 
     disabled.disable();
     $.postJSON(url, message, function(response) {
-        updater.showMessage(response);
+        updater.processMessage(response);
         if (message.id) {
             form.parent().remove();
         } else {
@@ -162,35 +171,50 @@ var updater = {
         updater.cursor = messages[messages.length - 1].id;
         console.log(messages.length, "new messages, cursor:", updater.cursor);
         for (var i = 0; i < messages.length; i++) {
-            updater.showMessage(messages[i]);
+            updater.processMessage(messages[i]);
         }
     },
 
-    showMessage: function(message) {
+    processMessage: function(message) {
+        console.log("Processing message [" + message.body + "]");
+
+        updater.showMessage(message)
+
+        if(message.body.startsWith("\\song")){
+            updater.processSongMessage(message)
+        }
+        else if(message.body.startsWith("\\enter")){
+            updater.processEnterMessage(message)
+        }
+
+    },
+
+    showMessage: function(message){
         var existing = $("#m" + message.id);
         if (existing.length > 0) return;
 
-        var html = '<div class="message" id=m'+message.id+'><b>'+message.from+':</b>'+message.body+'</div>';
+        var html = '<div class="message" id=m'+message.id+'><b>'+message.from+':</b> '+message.body+'</div>';
 
         var node = $(html);
         node.hide();
         $("#inbox").append(node);
         node.slideDown();
+    },
 
-        console.log("Processing message [" + message.body + "]");
+    processSongMessage: function(message){
+        var song = message.body.substring(6);
+        console.log("Message contains request to play song [" + song + "]");
+        $('#music h2').html("Now Playing - " + song);
+        playSong($('#' + song).attr('href'));
+    },
 
-        if(message.body.startsWith("\\song")){
+    processEnterMessage: function(message){
+        var user = message.from;
+        console.log("Message announces entrance of  [" + user + "]");
 
-            var song = message.body.substring(6);
-            console.log("Message contains request to play song [" + song + "]");
-            $('#music h2').html("Now Playing - " + song);
-            playSong($('#' + song).attr('href'));
-        }
-        else if(message.body.startsWith("\\enter")){
-            var user = message.from;
-            console.log("Message announces entrance of  [" + user + "]");
-            $('#users ul').append('<li id="user_' + user + '">' + user + '</li>')
-        }
+        var existing = $("#users #user_" + user);
+        if (existing.length > 0) return;
 
+        $('#users ul').append('<li id="user_' + user + '">' + user + '</li>')
     }
 };
