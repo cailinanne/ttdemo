@@ -54,11 +54,11 @@
 
     <section id="users">
         <h2>Users In This Room</h2>
-        <div id="floor">
+        <ul>
             {% for user in room['users'] %}
             {% module Template("user.html", user=user) %}
             {% end %}
-        </div>
+        </ul>
     </section>
 </div>
 

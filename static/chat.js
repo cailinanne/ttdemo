@@ -186,6 +186,11 @@ var updater = {
             $('#music h2').html("Now Playing - " + song);
             playSong($('#' + song).attr('href'));
         }
+        else if(message.body.startsWith("\\enter")){
+            var user = message.from;
+            console.log("Message announces entrance of  [" + user + "]");
+            $('#users ul').append('<li id="user_' + user + '">' + user + '</li>')
+        }
 
     }
 };
